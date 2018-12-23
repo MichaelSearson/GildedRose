@@ -2,9 +2,9 @@
 
 namespace GildedRose.Console
 {
-    internal class Program
+    public class Program
     {
-        private IList<Item> Items;
+        public IList<Item> Items;
 
         private static void Main(string[] args)
         {
