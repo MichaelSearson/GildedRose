@@ -9,6 +9,7 @@ namespace GildedRose.Console
     {
         private const string BrieName = "Aged Brie";
         private const string BackstageName = "Backstage passes to a TAFKAL80ETC concert";
+        private const string ConjuredName = "Conjured Mana Cake";
 
         private readonly IList<Item> _inventoryItems;
 
@@ -27,7 +28,8 @@ namespace GildedRose.Console
             {
                 var current = _inventoryItems[i];
 
-                // Legendary items don't have to be sold, nor do they decrease in quality.
+                // Legendary items don't have to be sold, nor do they decrease in
+                // quality.
                 if (IsLegendaryItem(current))
                     continue;
 
@@ -42,6 +44,10 @@ namespace GildedRose.Console
                 }
                 else if (current.Quality > 0)
                 {
+                    // Conjured items degrade in quality twice as fast as normal.
+                    if (current.Name == ConjuredName)
+                        current.Quality--;
+
                     // Handle the "normal item" base case.
                     current.Quality--;
                 }
