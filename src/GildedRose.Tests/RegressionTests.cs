@@ -20,14 +20,10 @@ namespace GildedRose.Tests
                 Quality = 20
             };
 
-            Program program = new Program
-            {
-                Items = new List<Item> { item }
-            };
+            Program.Items = new List<Item> { item };
+            Program.Execute();
 
-            program.UpdateQuality();
-
-            Assert.True(program.Items[0].Quality == 19 && program.Items[0].SellIn == 9);
+            Assert.True(Program.Items[0].Quality == 19 && Program.Items[0].SellIn == 9);
         }
 
         [Fact]
@@ -40,14 +36,11 @@ namespace GildedRose.Tests
                 Quality = 0
             };
 
-            Program program = new Program
-            {
-                Items = new List<Item> { item }
-            };
+            Program.Items = new List<Item> { item };
 
-            program.UpdateQuality();
+            Program.Execute();
 
-            Assert.True(program.Items[0].Quality == 1 && program.Items[0].SellIn == 1);
+            Assert.True(Program.Items[0].Quality == 1 && Program.Items[0].SellIn == 1);
         }
 
         [Fact]
@@ -60,14 +53,11 @@ namespace GildedRose.Tests
                 Quality = 7
             };
 
-            Program program = new Program
-            {
-                Items = new List<Item> { item }
-            };
+            Program.Items = new List<Item> { item };
 
-            program.UpdateQuality();
+            Program.Execute();
 
-            Assert.True(program.Items[0].Quality == 6 && program.Items[0].SellIn == 4);
+            Assert.True(Program.Items[0].Quality == 6 && Program.Items[0].SellIn == 4);
         }
 
         [Fact]
@@ -80,14 +70,11 @@ namespace GildedRose.Tests
                 Quality = 80
             };
 
-            Program program = new Program
-            {
-                Items = new List<Item> { item }
-            };
+            Program.Items = new List<Item> { item };
 
-            program.UpdateQuality();
+            Program.Execute();
 
-            Assert.True(program.Items[0].Quality == 80 && program.Items[0].SellIn == 0);
+            Assert.True(Program.Items[0].Quality == 80 && Program.Items[0].SellIn == 0);
         }
 
         [Fact]
@@ -100,14 +87,11 @@ namespace GildedRose.Tests
                 Quality = 20
             };
 
-            Program program = new Program
-            {
-                Items = new List<Item> { item }
-            };
+            Program.Items = new List<Item> { item };
 
-            program.UpdateQuality();
+            Program.Execute();
 
-            Assert.True(program.Items[0].Quality == 21 && program.Items[0].SellIn == 14);
+            Assert.True(Program.Items[0].Quality == 21 && Program.Items[0].SellIn == 14);
         }
 
         [Fact]
@@ -120,17 +104,14 @@ namespace GildedRose.Tests
                 Quality = 6
             };
 
-            Program program = new Program
-            {
-                Items = new List<Item> { item }
-            };
+            Program.Items = new List<Item> { item };
 
-            program.UpdateQuality();
+            Program.Execute();
 
-            // Note: we haven't implemented the conjured functionality yet so this will 
-            // fail...which is good! It acts as a reminder of what the program still 
+            // Note: we haven't implemented the conjured functionality yet so this will
+            // fail...which is good! It acts as a reminder of what the program still
             // needs to do!
-            Assert.True(program.Items[0].Quality == 3 && program.Items[0].SellIn == 1);
+            Assert.True(Program.Items[0].Quality == 3 && Program.Items[0].SellIn == 1);
         }
     }
 }

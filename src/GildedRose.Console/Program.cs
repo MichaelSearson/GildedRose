@@ -2,126 +2,83 @@
 
 namespace GildedRose.Console
 {
-    public class Program
+    public static class Program
     {
-        public IList<Item> Items;
+        public static IList<Item> Items;
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             System.Console.WriteLine("OMGHAI!");
 
-            var app = new Program()
-            {
-                Items = new List<Item>
-                {
-                    new Item {Name = "+5 Dexterity Vest", SellIn = 10, Quality = 20},
-                    new Item {Name = "Aged Brie", SellIn = 2, Quality = 0},
-                    new Item {Name = "Elixir of the Mongoose", SellIn = 5, Quality = 7},
-                    new Item {Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 80},
-                    new Item
-                        {
-                            Name = "Backstage passes to a TAFKAL80ETC concert",
-                            SellIn = 15,
-                            Quality = 20
-                        },
-                    new Item {Name = "Conjured Mana Cake", SellIn = 3, Quality = 6}
-                }
-            };
-
-            app.UpdateQuality();
+            Execute();
 
             System.Console.ReadKey();
         }
 
-        public void UpdateQuality()
+        /// <summary>
+        /// Represents the logical start for the application. Allows us to test in
+        /// isolation the program logic without the console specific code that may exist
+        /// in the <see cref="Main(string[])"/> method.
+        /// </summary>
+        public static void Execute()
         {
-            for (var i = 0; i < Items.Count; i++)
-            {
-                if (Items[i].Name != "Aged Brie" && Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                {
-                    if (Items[i].Quality > 0)
-                    {
-                        if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
-                    }
-                }
-                else
-                {
-                    if (Items[i].Quality < 50)
-                    {
-                        Items[i].Quality = Items[i].Quality + 1;
+            InitialiseState();
 
-                        if (Items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].SellIn < 11)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-
-                            if (Items[i].SellIn < 6)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                {
-                    Items[i].SellIn = Items[i].SellIn - 1;
-                }
-
-                if (Items[i].SellIn < 0)
-                {
-                    if (Items[i].Name != "Aged Brie")
-                    {
-                        if (Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].Quality > 0)
-                            {
-                                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    Items[i].Quality = Items[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Items[i].Quality = Items[i].Quality - Items[i].Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (Items[i].Quality < 50)
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                        }
-                    }
-                }
-            }
+            var endOfDayProcessor = new EndOfDayProcessor(Items);
+            endOfDayProcessor.UpdateInventory();
         }
-    }
 
-    public class Item
-    {
-        public string Name { get; set; }
+        #region Helpers
 
         /// <summary>
-        /// Number of days before an item must be sold.
+        /// Setup the application to have some data to operate on.
         /// </summary>
-        public int SellIn { get; set; }
+        private static void InitialiseState()
+        {
+            if (Items != null)
+                return;
 
-        /// <summary>
-        /// How valuable a given item is.
-        /// </summary>
-        public int Quality { get; set; }
+            Items = new List<Item>
+            {
+                new Item
+                {
+                    Name = "+5 Dexterity Vest",
+                    SellIn = 10,
+                    Quality = 20
+                },
+                new Item
+                {
+                    Name = "Aged Brie",
+                    SellIn = 2,
+                    Quality = 0
+                },
+                new Item
+                {
+                    Name = "Elixir of the Mongoose",
+                    SellIn = 5,
+                    Quality = 7
+                },
+                new Item
+                {
+                    Name = "Sulfuras, Hand of Ragnaros",
+                    SellIn = 0,
+                    Quality = 80
+                },
+                new Item
+                {
+                    Name = "Backstage passes to a TAFKAL80ETC concert",
+                    SellIn = 15,
+                    Quality = 20
+                },
+                new Item
+                {
+                    Name = "Conjured Mana Cake",
+                    SellIn = 3,
+                    Quality = 6
+                }
+            };
+        }
+
+        #endregion Helpers
     }
 }
