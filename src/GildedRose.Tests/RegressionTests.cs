@@ -111,7 +111,7 @@ namespace GildedRose.Tests
             // Note: we haven't implemented the conjured functionality yet so this will
             // fail...which is good! It acts as a reminder of what the program still
             // needs to do!
-            Assert.True(Program.Items[0].Quality == 3 && Program.Items[0].SellIn == 1);
+            Assert.True(Program.Items[0].Quality == 4 && Program.Items[0].SellIn == 2);
         }
     }
 }
