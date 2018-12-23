@@ -177,15 +177,13 @@ namespace GildedRose.Tests
             bool sixthIsValid = Program.Items[5].Quality == 4
                 && Program.Items[5].SellIn == 2;
 
-            // TODO: uncomment the sixth boolean check when conjured functionality is 
-            // implemented.
             Assert.True(
                 firstIsValid
                 && secondIsValid
                 && thirdIsValid
                 && fourthIsValid
                 && firstIsValid
-                /*&& sixthIsValid*/);
+                && sixthIsValid);
         }
     }
 }
