@@ -7,6 +7,9 @@ namespace GildedRose.Console
     /// </summary>
     public class EndOfDayProcessor
     {
+        private const string BrieName = "Aged Brie";
+        private const string BackstageName = "Backstage passes to a TAFKAL80ETC concert";
+
         private readonly IList<Item> _inventoryItems;
 
         public EndOfDayProcessor(IList<Item> inventoryItems)
@@ -15,93 +18,93 @@ namespace GildedRose.Console
         }
 
         /// <summary>
-        /// Works through the provided inventory updates the quality and sell in values
+        /// Works through the provided inventory and updates the quality / sell in values
         /// as appropriate.
         /// </summary>
         public void UpdateInventory()
         {
             for (var i = 0; i < _inventoryItems.Count; i++)
             {
-                if (_inventoryItems[i].Name != "Aged Brie" && _inventoryItems[i].Name != "Backstage passes to a TAFKAL80ETC concert")
+                var current = _inventoryItems[i];
+
+                // Legendary items don't have to be sold, nor do they decrease in quality.
+                if (IsLegendaryItem(current))
+                    continue;
+
+                if (current.Name == BackstageName && current.SellIn <= 0)
                 {
-                    if (_inventoryItems[i].Quality > 0)
-                    {
-                        if (_inventoryItems[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            _inventoryItems[i].Quality = _inventoryItems[i].Quality - 1;
-                        }
-                    }
+                    current.Quality = 0;
                 }
-                else
+                else if (ShouldIncreaseInQuality(current))
                 {
-                    if (_inventoryItems[i].Quality < 50)
-                    {
-                        _inventoryItems[i].Quality = _inventoryItems[i].Quality + 1;
-
-                        if (_inventoryItems[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (_inventoryItems[i].SellIn < 11)
-                            {
-                                if (_inventoryItems[i].Quality < 50)
-                                {
-                                    _inventoryItems[i].Quality = _inventoryItems[i].Quality + 1;
-                                }
-                            }
-
-                            if (_inventoryItems[i].SellIn < 6)
-                            {
-                                if (_inventoryItems[i].Quality < 50)
-                                {
-                                    _inventoryItems[i].Quality = _inventoryItems[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
+                    if (current.Quality != 50)
+                        ProcessIncreaseInQuality(current);
+                }
+                else if (current.Quality > 0)
+                {
+                    // Handle the "normal item" base case.
+                    current.Quality--;
                 }
 
-                if (_inventoryItems[i].Name != "Sulfuras, Hand of Ragnaros")
-                {
-                    _inventoryItems[i].SellIn = _inventoryItems[i].SellIn - 1;
-                }
+                current.SellIn--;
 
-                if (_inventoryItems[i].SellIn < 0)
-                {
-                    if (_inventoryItems[i].Name != "Aged Brie")
-                    {
-                        if (_inventoryItems[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (_inventoryItems[i].Quality > 0)
-                            {
-                                if (_inventoryItems[i].Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    _inventoryItems[i].Quality = _inventoryItems[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            _inventoryItems[i].Quality = _inventoryItems[i].Quality - _inventoryItems[i].Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (_inventoryItems[i].Quality < 50)
-                        {
-                            _inventoryItems[i].Quality = _inventoryItems[i].Quality + 1;
-                        }
-                    }
-                }
+                // If the sell by date has passed the quality degrades twice as fast.
+                if (current.Quality > 0 && current.SellIn < 0)
+                    current.Quality--;
             }
         }
 
         #region Helpers
 
-        private void UpdateQuality()
+        /// <summary>
+        /// Work out if the provided <paramref name="item"/> is legendary.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        private bool IsLegendaryItem(Item item)
         {
+            return item.Name == "Sulfuras, Hand of Ragnaros";
         }
 
-        private void UpdateSellIn()
+        /// <summary>
+        /// Work out if the provided <paramref name="item"/> can increase its quality
+        /// over time. Does not validate quality maximum.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        private bool ShouldIncreaseInQuality(Item item)
         {
+            return item.Name == BrieName || item.Name == BackstageName;
+        }
+
+        /// <summary>
+        /// Increase the quality value of the provided <paramref name="item"/>.
+        /// </summary>
+        /// <param name="item"></param>
+        private void ProcessIncreaseInQuality(Item item)
+        {
+            item.Quality++;
+
+            if (item.Name == BackstageName)
+                ProcessBackstagePass(item);
+        }
+
+        /// <summary>
+        /// Increase the quality of the provided <paramref name="item"/> again if it
+        /// meets the Sell In criteria.
+        /// </summary>
+        /// <param name="item"></param>
+        private void ProcessBackstagePass(Item item)
+        {
+            if (item.SellIn < 11 && item.Quality < 50)
+            {
+                item.Quality++;
+            }
+
+            if (item.SellIn < 6 && item.Quality < 50)
+            {
+                item.Quality++;
+            }
         }
 
         #endregion Helpers
