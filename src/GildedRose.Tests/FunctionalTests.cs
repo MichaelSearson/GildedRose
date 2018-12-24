@@ -10,8 +10,6 @@ namespace GildedRose.Tests
     /// </summary>
     public class FunctionalTests
     {
-        private const string FunctionalCollection = "Functional";
-
         [Fact]
         public void ItemSellInLowersByOneEachDay()
         {
