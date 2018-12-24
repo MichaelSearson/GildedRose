@@ -1,4 +1,7 @@
 using GildedRose.Console;
+using GildedRose.Core.Inventory;
+using GuildedRose.Core.Products;
+using Moq;
 using System.Collections.Generic;
 using Xunit;
 
@@ -11,171 +14,230 @@ namespace GildedRose.Tests
     public class RegressionTests
     {
         [Fact]
-        public void DexterityItemTest()
+        public void DexterityProductTest()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "+5 Dexterity Vest",
-                SellIn = 10,
-                Quality = 20
+                new NormalProduct
+                (
+                    "+5 Dexterity Vest",
+                    10,
+                    20,
+                    ProductEnums.QualityDirection.Decrease
+                )
             };
 
-            Program.Items = new List<Item> { item };
-            Program.Execute();
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Assert.True(Program.Items[0].Quality == 19 && Program.Items[0].SellIn == 9);
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
+
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 19 && currentState[0].SellIn == 9);
         }
 
         [Fact]
-        public void AgedBrieItemTest()
+        public void AgedBrieProductTest()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Aged Brie",
-                SellIn = 2,
-                Quality = 0
+                new NormalProduct
+                (
+                    "Aged Brie",
+                    2,
+                    0,
+                    ProductEnums.QualityDirection.Increase
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            Assert.True(Program.Items[0].Quality == 1 && Program.Items[0].SellIn == 1);
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 1 && currentState[0].SellIn == 1);
         }
 
         [Fact]
-        public void ElixirOfTheMongooseItemTest()
+        public void ElixirOfTheMongooseProductTest()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Elixir of the Mongoose",
-                SellIn = 5,
-                Quality = 7
+                new NormalProduct
+                (
+                    "Elixir of the Mongoose",
+                    5,
+                    7,
+                    ProductEnums.QualityDirection.Decrease
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            Assert.True(Program.Items[0].Quality == 6 && Program.Items[0].SellIn == 4);
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 6 && currentState[0].SellIn == 4);
         }
 
         [Fact]
-        public void SulfurasHandOfRagnarosItemTest()
+        public void SulfurasHandOfRagnarosProductTest()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Sulfuras, Hand of Ragnaros",
-                SellIn = 0,
-                Quality = 80
+                new LegendaryProduct
+                (
+                    "Sulfuras, Hand of Ragnaros",
+                    0,
+                    80
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            Assert.True(Program.Items[0].Quality == 80 && Program.Items[0].SellIn == 0);
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 80 && currentState[0].SellIn == 0);
         }
 
         [Fact]
-        public void BackstagePassesItemTest()
+        public void BackstagePassesProductTest()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Backstage passes to a TAFKAL80ETC concert",
-                SellIn = 15,
-                Quality = 20
+                new BackstagePassProduct
+                (
+                    "Backstage passes to a TAFKAL80ETC concert",
+                    15,
+                    20
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            Assert.True(Program.Items[0].Quality == 21 && Program.Items[0].SellIn == 14);
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 21 && currentState[0].SellIn == 14);
         }
 
         [Fact]
-        public void ConjuredManaCakeItemTest()
+        public void ConjuredManaCakeProductTest()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Conjured Mana Cake",
-                SellIn = 3,
-                Quality = 6
+                new ConjuredProduct
+                (
+                    "Conjured Mana Cake",
+                    3,
+                    6
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            // Note: we haven't implemented the conjured functionality yet so this will
-            // fail...which is good! It acts as a reminder of what the program still
-            // needs to do!
-            Assert.True(Program.Items[0].Quality == 4 && Program.Items[0].SellIn == 2);
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 4 && currentState[0].SellIn == 2);
         }
 
         [Fact]
-        public void HandleMultipleItemsTest()
+        public void HandleMultipleProductsTest()
         {
-            Program.Items = new List<Item>
+            var data = new List<Product>
             {
-                new Item
-                {
-                    Name = "+5 Dexterity Vest",
-                    SellIn = 10,
-                    Quality = 20
-                },
-                new Item
-                {
-                    Name = "Aged Brie",
-                    SellIn = 2,
-                    Quality = 0
-                },
-                new Item
-                {
-                    Name = "Elixir of the Mongoose",
-                    SellIn = 5,
-                    Quality = 7
-                },
-                new Item
-                {
-                    Name = "Sulfuras, Hand of Ragnaros",
-                    SellIn = 0,
-                    Quality = 80
-                },
-                new Item
-                {
-                    Name = "Backstage passes to a TAFKAL80ETC concert",
-                    SellIn = 15,
-                    Quality = 20
-                },
-                new Item
-                {
-                    Name = "Conjured Mana Cake",
-                    SellIn = 3,
-                    Quality = 6
-                }
+                 new NormalProduct(
+                    "+5 Dexterity Vest",
+                    10,
+                    20,
+                    ProductEnums.QualityDirection.Decrease),
+
+                new NormalProduct(
+                    "Aged Brie",
+                    2,
+                    0,
+                    ProductEnums.QualityDirection.Increase),
+
+                new NormalProduct(
+                    "Elixir of the Mongoose",
+                    5,
+                    7,
+                    ProductEnums.QualityDirection.Decrease),
+
+                 new LegendaryProduct(
+                     "Sulfuras, Hand of Ragnaros",
+                     0,
+                     80),
+
+                new BackstagePassProduct(
+                    "Backstage passes to a TAFKAL80ETC concert",
+                    15,
+                    20),
+
+                new ConjuredProduct(
+                    "Conjured Mana Cake",
+                    3,
+                    6)
             };
 
-            Program.Execute();
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            bool firstIsValid = Program.Items[0].Quality == 19
-                && Program.Items[0].SellIn == 9;
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            bool secondIsValid = Program.Items[1].Quality == 1
-                && Program.Items[1].SellIn == 1;
+            var app = new App(endOfDayProcessor);
+            app.Run();
 
-            bool thirdIsValid = Program.Items[2].Quality == 6
-                && Program.Items[2].SellIn == 4;
+            var currentState = mock.Object.GetCurrentInventory();
 
-            bool fourthIsValid = Program.Items[3].Quality == 80
-                && Program.Items[3].SellIn == 0;
+            bool firstIsValid = currentState[0].Quality == 19
+                && currentState[0].SellIn == 9;
 
-            bool fifthIsValid = Program.Items[4].Quality == 21
-                && Program.Items[4].SellIn == 14;
+            bool secondIsValid = currentState[1].Quality == 1
+                && currentState[1].SellIn == 1;
 
-            bool sixthIsValid = Program.Items[5].Quality == 4
-                && Program.Items[5].SellIn == 2;
+            bool thirdIsValid = currentState[2].Quality == 6
+                && currentState[2].SellIn == 4;
+
+            bool fourthIsValid = currentState[3].Quality == 80
+                && currentState[3].SellIn == 0;
+
+            bool fifthIsValid = currentState[4].Quality == 21
+                && currentState[4].SellIn == 14;
+
+            bool sixthIsValid = currentState[5].Quality == 4
+                && currentState[5].SellIn == 2;
 
             Assert.True(
                 firstIsValid

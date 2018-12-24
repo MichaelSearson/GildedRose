@@ -1,4 +1,7 @@
 ﻿using GildedRose.Console;
+using GildedRose.Core.Inventory;
+using GuildedRose.Core.Products;
+using Moq;
 using System.Collections.Generic;
 using Xunit;
 
@@ -10,206 +13,322 @@ namespace GildedRose.Tests
     /// </summary>
     public class FunctionalTests
     {
-        private const string FunctionalCollection = "Functional";
-
         [Fact]
-        public void ItemSellInLowersByOneEachDay()
+        public void ProductSellInLowersByOneEachDay()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "+5 Dexterity Vest",
-                SellIn = 10,
-                Quality = 20
+                new NormalProduct
+                (
+                    "+5 Dexterity Vest",
+                    10,
+                    20,
+                    ProductEnums.QualityDirection.Decrease
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            bool validFirstDay = Program.Items[0].SellIn == 9;
+            var app = new App(endOfDayProcessor);
+            app.Run();
 
-            Program.Execute();
+            var currentState = mock.Object.GetCurrentInventory();
 
-            bool validSecondDay = Program.Items[0].SellIn == 8;
+            bool validFirstDay = currentState[0].SellIn == 9;
+
+            app.Run();
+
+            currentState = mock.Object.GetCurrentInventory();
+
+            bool validSecondDay = currentState[0].SellIn == 8;
 
             Assert.True(validFirstDay && validSecondDay);
         }
 
         [Fact]
-        public void ItemQualityLowersByOneEachDay()
+        public void ProductQualityLowersByOneEachDay()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "+5 Dexterity Vest",
-                SellIn = 10,
-                Quality = 20
+                new NormalProduct
+                (
+                    "+5 Dexterity Vest",
+                    10,
+                    20,
+                    ProductEnums.QualityDirection.Decrease
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            bool validFirstDay = Program.Items[0].Quality == 19;
+            var app = new App(endOfDayProcessor);
+            app.Run();
 
-            Program.Execute();
+            var currentState = mock.Object.GetCurrentInventory();
 
-            bool validSecondDay = Program.Items[0].Quality == 18;
+            bool validFirstDay = currentState[0].Quality == 19;
+
+            app.Run();
+
+            currentState = mock.Object.GetCurrentInventory();
+
+            bool validSecondDay = currentState[0].Quality == 18;
 
             Assert.True(validFirstDay && validSecondDay);
         }
 
         [Fact]
-        public void ItemQualityDegradesTwiceAsFastAfterSellBy()
+        public void ProductQualityDegradesTwiceAsFastAfterSellBy()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "+5 Dexterity Vest",
-                SellIn = 1,
-                Quality = 10
+                new NormalProduct
+                (
+                    "+5 Dexterity Vest",
+                    1,
+                    10,
+                    ProductEnums.QualityDirection.Decrease
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            bool validFirstDay = Program.Items[0].Quality == 9;
+            var app = new App(endOfDayProcessor);
+            app.Run();
 
-            Program.Execute();
+            var currentState = mock.Object.GetCurrentInventory();
 
-            bool validSecondDay = Program.Items[0].Quality == 7;
+            bool validFirstDay = currentState[0].Quality == 9;
+
+            app.Run();
+
+            currentState = mock.Object.GetCurrentInventory();
+
+            bool validSecondDay = currentState[0].Quality == 7;
 
             Assert.True(validFirstDay && validSecondDay);
         }
 
         [Fact]
-        public void ItemQualityIsNeverNegative()
+        public void ProductQualityIsNeverNegative()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "+5 Dexterity Vest",
-                SellIn = 0,
-                Quality = 1
+                new NormalProduct
+                (
+                    "+5 Dexterity Vest",
+                    0,
+                    1,
+                    ProductEnums.QualityDirection.Decrease
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            bool validFirstDay = Program.Items[0].Quality == 0;
+            var app = new App(endOfDayProcessor);
+            app.Run();
 
-            Program.Execute();
+            var currentState = mock.Object.GetCurrentInventory();
 
-            bool validSecondDay = Program.Items[0].Quality == 0;
+            bool validFirstDay = currentState[0].Quality == 0;
+
+            app.Run();
+
+            currentState = mock.Object.GetCurrentInventory();
+
+            bool validSecondDay = currentState[0].Quality == 0;
 
             Assert.True(validFirstDay && validSecondDay);
         }
 
         [Fact]
-        public void ItemQualityIsNeverMoreThanFiftyForNormalItems()
+        public void ProductQualityIsNeverMoreThanFiftyForNormalProducts()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Aged Brie",
-                SellIn = 10,
-                Quality = 49
+                new NormalProduct
+                (
+                    "Aged Brie",
+                    10,
+                    49,
+                    ProductEnums.QualityDirection.Increase
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            bool validFirstDay = Program.Items[0].Quality == 50;
+            var app = new App(endOfDayProcessor);
+            app.Run();
 
-            Program.Execute();
+            var currentState = mock.Object.GetCurrentInventory();
 
-            bool validSecondDay = Program.Items[0].Quality == 50;
+            bool validFirstDay = currentState[0].Quality == 50;
+
+            app.Run();
+
+            currentState = mock.Object.GetCurrentInventory();
+
+            bool validSecondDay = currentState[0].Quality == 50;
 
             Assert.True(validFirstDay && validSecondDay);
         }
 
         [Fact]
-        public void LegendaryItemsDoNotDegradeInQuality()
+        public void LegendaryProductsDoNotDegradeInQuality()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Sulfuras, Hand of Ragnaros",
-                SellIn = 0,
-                Quality = 80
+                new LegendaryProduct
+                (
+                    "Sulfuras, Hand of Ragnaros",
+                    0,
+                    80
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            Assert.True(Program.Items[0].Quality == 80);
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 80);
         }
 
         [Fact]
-        public void BackstagePassItemsIncreaseInQuality()
+        public void BackstagePassProductsIncreaseInQualityTenDaysRemaining()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Backstage passes to a TAFKAL80ETC concert",
-                SellIn = 11,
-                Quality = 20
+                new BackstagePassProduct
+                (
+                    "Backstage passes to a TAFKAL80ETC concert",
+                    11,
+                    20
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            bool validFirstDay = Program.Items[0].Quality == 21;
+            var app = new App(endOfDayProcessor);
+            app.Run();
 
-            Program.Execute();
+            var currentState = mock.Object.GetCurrentInventory();
 
-            bool validSecondDay = Program.Items[0].Quality == 23;
+            bool validFirstDay = currentState[0].Quality == 21;
 
-            // Skip to the next change in quality step value.
-            Program.Items[0].SellIn = 5;
+            app.Run();
 
-            Program.Execute();
+            currentState = mock.Object.GetCurrentInventory();
 
-            bool validThirdDay = Program.Items[0].Quality == 26;
+            bool validSecondDay = currentState[0].Quality == 23;
 
-            Assert.True(validFirstDay && validSecondDay && validThirdDay);
+            Assert.True(validFirstDay && validSecondDay);
+        }
+
+        public void BackstagePassProductsIncreaseInQualityFiveDaysRemaining()
+        {
+            var data = new List<Product>
+            {
+                new BackstagePassProduct
+                (
+                    "Backstage passes to a TAFKAL80ETC concert",
+                    5,
+                    23
+                )
+            };
+
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
+
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
+
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 26);
         }
 
         [Fact]
-        public void BackstagePassItemsHaveNoQualityAfterConcert()
+        public void BackstagePassProductsHaveNoQualityAfterConcert()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Backstage passes to a TAFKAL80ETC concert",
-                SellIn = 0,
-                Quality = 20
+                new BackstagePassProduct
+                (
+                    "Backstage passes to a TAFKAL80ETC concert",
+                    0,
+                    20
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            Assert.True(Program.Items[0].Quality == 0);
+            var app = new App(endOfDayProcessor);
+            app.Run();
+
+            var currentState = mock.Object.GetCurrentInventory();
+
+            Assert.True(currentState[0].Quality == 0);
         }
 
         [Fact]
-        public void ConjuredItemsDegradeTwiceAsFastAsNormalItems()
+        public void ConjuredProductsDegradeTwiceAsFastAsNormalProducts()
         {
-            var item = new Item
+            var data = new List<Product>
             {
-                Name = "Conjured Mana Cake",
-                SellIn = 1,
-                Quality = 5
+                new ConjuredProduct
+                (
+                    "Conjured Mana Cake",
+                    1,
+                    5
+                )
             };
 
-            Program.Items = new List<Item> { item };
+            var mock = new Mock<IInventory>();
+            mock.Setup(x => x.GetCurrentInventory()).Returns(data);
 
-            Program.Execute();
+            var endOfDayProcessor = new EndOfDayProcessor(mock.Object);
 
-            bool validFirstDay = Program.Items[0].Quality == 3;
+            var app = new App(endOfDayProcessor);
+            app.Run();
 
-            Program.Execute();
+            var currentState = mock.Object.GetCurrentInventory();
 
-            bool validSecondDay = Program.Items[0].Quality == 0;
+            bool validFirstDay = currentState[0].Quality == 3;
+
+            app.Run();
+
+            currentState = mock.Object.GetCurrentInventory();
+
+            bool validSecondDay = currentState[0].Quality == 0;
 
             Assert.True(validFirstDay && validSecondDay);
         }
