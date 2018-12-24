@@ -12,8 +12,8 @@
 
         public void Update()
         {
-            UpdateSellIn();
             UpdateQuality();
+            UpdateSellIn();
         }
 
         protected virtual void UpdateSellIn()
@@ -34,7 +34,7 @@
                 case ProductEnums.QualityDirection.Decrease:
                     // When the sell by date has passed the quality degrades twice as
                     // fast.
-                    if (Quality > 0 && SellIn < 0)
+                    if (Quality > 0 && SellIn <= 0)
                         Quality--;
 
                     // Quality always degrades by one per day.
